@@ -1,19 +1,92 @@
-import { View, Text, StyleSheet } from 'react-native';
-import { useTheme } from '../../constants/theme';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { FlashList, ListRenderItem } from '@shopify/flash-list';
+import { useRouter } from 'expo-router';
+import { useTheme, spacing, typography } from '../../constants/theme';
+import { useNotesStore } from '../../store/notesStore';
+import NoteCard from '../../components/items/NoteCard';
+import { Note } from '../../types';
 
 export default function NotasScreen() {
   const theme = useTheme();
+  const router = useRouter();
+  const notes = useNotesStore((state) => state.notes);
+
+  const EmptyState = () => (
+    <View style={styles.emptyContainer}>
+      <Text style={styles.emptyIcon}>📔</Text>
+      <Text style={[styles.emptyTitle, { color: theme.text }]}>
+        Sin reflexiones aún
+      </Text>
+      <Text style={[styles.emptySubtitle, { color: theme.textSecondary }]}>
+        Pulsa + para escribir tu primera reflexión
+      </Text>
+    </View>
+  );
+
+  const renderItem: ListRenderItem<Note> = ({ item }) => (
+    <NoteCard
+      note={item}
+      onPress={() => router.push(`/notas/${item.id}` as any)}
+    />
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <Text style={[styles.text, { color: theme.text }]}>
-        Mis Reflexiones
-      </Text>
+      <FlashList
+        data={notes}
+        renderItem={renderItem}
+        estimatedItemSize={120}
+        ListEmptyComponent={EmptyState}
+        contentContainerStyle={styles.list}
+      />
+      <TouchableOpacity
+        style={[styles.fab, { backgroundColor: theme.primary }]}
+        onPress={() => router.push('/nueva-nota' as any)}
+      >
+        <Text style={styles.fabText}>+</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  text: { fontSize: 24, fontWeight: '600' },
+  container: { flex: 1 },
+  list: { paddingVertical: spacing.md },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 120,
+  },
+  emptyIcon: { fontSize: 48, marginBottom: spacing.md },
+  emptyTitle: {
+    fontSize: typography.fontSizes.lg,
+    fontWeight: '600',
+    marginBottom: spacing.xs,
+  },
+  emptySubtitle: {
+    fontSize: typography.fontSizes.sm,
+    textAlign: 'center',
+    paddingHorizontal: spacing.xl,
+  },
+  fab: {
+    position: 'absolute',
+    bottom: spacing.xl,
+    right: spacing.xl,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  fabText: {
+    color: 'white',
+    fontSize: 28,
+    fontWeight: '300',
+  },
 });
