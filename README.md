@@ -54,3 +54,7 @@ minddrop/
 - [Teoría React Native](./docs/react-native-teoria.md)
 - [Configuración IA](./docs/ai-setup.md)
 - [Gestión del proyecto](./docs/project-management.md)
+
+## Gestión del proyecto
+
+El desarrollo se gestiona con Trello. Puedes ver el estado actual del proyecto aquí: [Tablero Trello MindDrop](https://trello.com/invite/b/6a04445bc750ec8081089738/ATTIc32d62d4403a8206a969e6634fb0e20f2701AF86/minddrop)
