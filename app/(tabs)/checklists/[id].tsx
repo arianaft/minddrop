@@ -1,14 +1,47 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import { useTheme, spacing, typography, borderRadius } from '../../../constants/theme';
 import { useNotesStore } from '../../../store/notesStore';
 
 export default function ChecklistDetailScreen() {
   const theme = useTheme();
+  const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const checklists = useNotesStore((state) => state.checklists);
   const toggleChecklistItem = useNotesStore((state) => state.toggleChecklistItem);
+  const deleteChecklist = useNotesStore((state) => state.deleteChecklist);
   const checklist = checklists.find((c) => c.id === id);
+
+  const handleToggle = (itemId: string) => {
+    toggleChecklistItem(id!, itemId);
+    const updatedChecklist = checklists.find((c) => c.id === id);
+    const allCompleted = updatedChecklist?.items.every((i) => i.isCompleted);
+    if (allCompleted) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } else {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+  };
+
+  const handleDelete = () => {
+    Alert.alert(
+      'Eliminar hábito',
+      '¿Estás seguro? Esta acción no se puede deshacer.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: () => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            deleteChecklist(id!);
+            router.back();
+          },
+        },
+      ]
+    );
+  };
 
   if (!checklist) {
     return (
@@ -18,14 +51,21 @@ export default function ChecklistDetailScreen() {
     );
   }
 
+  const completed = checklist.items.filter((i) => i.isCompleted).length;
+  const total = checklist.items.length;
+
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <Text style={[styles.title, { color: theme.text }]}>{checklist.title}</Text>
+      <Text style={[styles.progress, { color: theme.textSecondary }]}>
+        {completed}/{total} completados
+      </Text>
+
       {checklist.items.map((item) => (
         <TouchableOpacity
           key={item.id}
           style={[styles.item, { backgroundColor: theme.surface, borderColor: theme.border }]}
-          onPress={() => toggleChecklistItem(checklist.id, item.id)}
+          onPress={() => handleToggle(item.id)}
         >
           <Text style={[styles.checkbox, { color: theme.primary }]}>
             {item.isCompleted ? '✅' : '⬜'}
@@ -39,13 +79,21 @@ export default function ChecklistDetailScreen() {
           </Text>
         </TouchableOpacity>
       ))}
+
+      <TouchableOpacity
+        style={[styles.deleteButton, { borderColor: theme.error }]}
+        onPress={handleDelete}
+      >
+        <Text style={[styles.deleteText, { color: theme.error }]}>🗑 Eliminar hábito</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: spacing.md },
-  title: { fontSize: typography.fontSizes.xl, fontWeight: '700', marginBottom: spacing.md },
+  title: { fontSize: typography.fontSizes.xl, fontWeight: '700', marginBottom: spacing.xs },
+  progress: { fontSize: typography.fontSizes.sm, marginBottom: spacing.lg },
   item: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -58,4 +106,12 @@ const styles = StyleSheet.create({
   checkbox: { fontSize: 20 },
   itemText: { fontSize: typography.fontSizes.md, flex: 1 },
   completed: { textDecorationLine: 'line-through' },
+  deleteButton: {
+    borderWidth: 1,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    alignItems: 'center',
+    marginTop: spacing.lg,
+  },
+  deleteText: { fontSize: typography.fontSizes.md, fontWeight: '500' },
 });
