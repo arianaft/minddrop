@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { FlashList, ListRenderItem } from '@shopify/flash-list';
+import FlashListWrapper from '../../components/FlashListWrapper';
 import { useRouter } from 'expo-router';
 import { useTheme, spacing, typography } from '../../constants/theme';
 import { useNotesStore } from '../../store/notesStore';
@@ -23,7 +23,7 @@ export default function NotasScreen() {
     </View>
   );
 
-  const renderItem: ListRenderItem<Note> = ({ item }) => (
+  const renderItem = ({ item }: { item: Note }) => (
     <NoteCard
       note={item}
       onPress={() => router.push(`/notas/${item.id}` as any)}
@@ -32,10 +32,9 @@ export default function NotasScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <FlashList
+      <FlashListWrapper
         data={notes}
         renderItem={renderItem}
-        estimatedItemSize={120}
         ListEmptyComponent={EmptyState}
         contentContainerStyle={styles.list}
       />
@@ -51,7 +50,7 @@ export default function NotasScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  list: { paddingVertical: spacing.md },
+  list: { paddingVertical: spacing.md, flexGrow: 1 },
   emptyContainer: {
     flex: 1,
     alignItems: 'center',

@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { FlashList, ListRenderItem } from '@shopify/flash-list';
+import FlashListWrapper from '../../components/FlashListWrapper';
 import { useRouter } from 'expo-router';
 import { useTheme, spacing, typography } from '../../constants/theme';
 import { useNotesStore } from '../../store/notesStore';
@@ -23,7 +23,7 @@ export default function ChecklistsScreen() {
     </View>
   );
 
-  const renderItem: ListRenderItem<ChecklistNote> = ({ item }) => (
+  const renderItem = ({ item }: { item: ChecklistNote }) => (
     <ChecklistCard
       checklist={item}
       onPress={() => router.push(`/checklists/${item.id}` as any)}
@@ -32,16 +32,15 @@ export default function ChecklistsScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <FlashList
+      <FlashListWrapper
         data={checklists}
         renderItem={renderItem}
-        estimatedItemSize={130}
         ListEmptyComponent={EmptyState}
         contentContainerStyle={styles.list}
       />
       <TouchableOpacity
         style={[styles.fab, { backgroundColor: theme.primary }]}
-        onPress={() => router.push('/nueva-nota' as any)}
+        onPress={() => router.push('/nueva-nota?type=checklist' as any)}
       >
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>

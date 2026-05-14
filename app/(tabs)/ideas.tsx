@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { FlashList, ListRenderItem } from '@shopify/flash-list';
+import FlashListWrapper from '../../components/FlashListWrapper';
 import { useRouter } from 'expo-router';
 import { useTheme, spacing, typography } from '../../constants/theme';
 import { useNotesStore } from '../../store/notesStore';
@@ -23,7 +23,7 @@ export default function IdeasScreen() {
     </View>
   );
 
-  const renderItem: ListRenderItem<IdeaNote> = ({ item }) => (
+  const renderItem = ({ item }: { item: IdeaNote }) => (
     <IdeaCard
       idea={item}
       onPress={() => router.push(`/ideas/${item.id}` as any)}
@@ -32,16 +32,15 @@ export default function IdeasScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <FlashList
+      <FlashListWrapper
         data={ideas}
         renderItem={renderItem}
-        estimatedItemSize={110}
         ListEmptyComponent={EmptyState}
         contentContainerStyle={styles.list}
       />
       <TouchableOpacity
         style={[styles.fab, { backgroundColor: theme.primary }]}
-        onPress={() => router.push('/nueva-nota' as any)}
+        onPress={() => router.push('/nueva-nota?type=idea' as any)}
       >
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
@@ -51,7 +50,7 @@ export default function IdeasScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  list: { paddingVertical: spacing.md },
+  list: { paddingVertical: spacing.md, flexGrow: 1 },
   emptyContainer: {
     flex: 1,
     alignItems: 'center',
