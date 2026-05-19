@@ -14,10 +14,11 @@ export default function ChecklistDetailScreen() {
   const checklist = checklists.find((c) => c.id === id);
 
   const handleToggle = (itemId: string) => {
+    const willBeCompleted = checklist?.items.every(
+      (i) => i.id === itemId ? !i.isCompleted : i.isCompleted
+    );
     toggleChecklistItem(id!, itemId);
-    const updatedChecklist = checklists.find((c) => c.id === id);
-    const allCompleted = updatedChecklist?.items.every((i) => i.isCompleted);
-    if (allCompleted) {
+    if (willBeCompleted) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } else {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

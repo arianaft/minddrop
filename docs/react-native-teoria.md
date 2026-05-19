@@ -41,6 +41,21 @@ Investigué las dos librerías UI más usadas con Expo:
 
 **Decisión**: Elegí React Native Paper por su estabilidad, combinado con un sistema de diseño propio en `constants/theme.ts` con tokens de color, tipografía y espaciado propios de MindDrop. Esto me permite mantener la identidad visual de la app sin depender completamente de los estilos de Material Design.
 
+## Navegación con Expo Router
+
+Expo Router ofrece tres patrones de navegación principales que se combinan según las necesidades de la app:
+
+**Tabs (pestañas)**: Navegación horizontal entre secciones independientes. El usuario puede saltar entre ellas sin perder el estado de cada una. Se usa cuando las secciones tienen el mismo nivel jerárquico y el usuario las alterna con frecuencia.
+
+**Stack (pila)**: Navegación en profundidad. Cada pantalla se apila sobre la anterior y el usuario puede volver atrás. Se usa para flujos jerárquicos: listado → detalle, configuración → opción concreta.
+
+**Modal**: Pantalla que se superpone sobre la navegación actual, normalmente para acciones puntuales (formularios, confirmaciones). No forma parte de la jerarquía de navegación permanente.
+
+**Cómo se usa cada uno en MindDrop**:
+- **Tabs** (`app/(tabs)/_layout.tsx`): las tres secciones principales (Reflexiones, Hábitos, Ideas) son independientes entre sí y tienen el mismo peso, por lo que Tabs es la elección natural.
+- **Stack**: dentro de cada pestaña, navegar de la lista al detalle de un elemento es una relación jerárquica padre-hijo, perfecta para Stack. Expo Router lo gestiona automáticamente con los archivos `[id].tsx`.
+- **Modal** (`app/nueva-nota.tsx`): el formulario de creación es una acción puntual que no pertenece a ninguna pestaña concreta. Presentarlo como modal permite cerrarlo con un gesto de deslizamiento y deja clara su naturaleza temporal.
+
 ## Gestión de estado
 
 Comparativa de las tres opciones principales:
@@ -52,6 +67,22 @@ Comparativa de las tres opciones principales:
 **Zustand**: Librería de estado global minimalista. No requiere providers anidados y solo re-renderiza los componentes que usan el dato específico que cambió. Es el estándar moderno para gestión de estado en React Native.
 
 En MindDrop usamos Zustand porque necesitamos compartir el estado de las notas entre las tres pestañas y el formulario de creación.
+
+## Type guards en TypeScript
+
+Cuando tienes un tipo unión como `AnyNote = Note | ChecklistNote | IdeaNote`, TypeScript no sabe en tiempo de ejecución con qué tipo concreto estás trabajando. Los **type guards** son funciones que comprueban el tipo real y le informan al compilador para que active el tipado correcto dentro de ese bloque.
+
+En MindDrop se usan comprobaciones de propiedad con el operador `in`:
+
+```typescript
+export function isChecklist(note: AnyNote): note is ChecklistNote {
+  return 'items' in note;
+}
+```
+
+`'items' in note` devuelve `true` solo si el objeto tiene la propiedad `items`, que es exclusiva de `ChecklistNote`. Dentro de un `if (isChecklist(note))`, TypeScript ya sabe que `note` es `ChecklistNote` y permite acceder a `note.items` sin error.
+
+Esto es necesario porque JavaScript no tiene tipos en tiempo de ejecución: un `AnyNote` es solo un objeto, y el compilador necesita una prueba explícita para reducir el tipo unión a uno concreto.
 
 ## Rendimiento en listas
 
