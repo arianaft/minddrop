@@ -10,6 +10,7 @@ export default function ChecklistDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const checklists = useNotesStore((state) => state.checklists);
   const toggleChecklistItem = useNotesStore((state) => state.toggleChecklistItem);
+  const archiveChecklist = useNotesStore((state) => state.archiveChecklist);
   const deleteChecklist = useNotesStore((state) => state.deleteChecklist);
   const checklist = checklists.find((c) => c.id === id);
 
@@ -25,10 +26,16 @@ export default function ChecklistDetailScreen() {
     }
   };
 
+  const handleArchive = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    archiveChecklist(id!);
+    router.back();
+  };
+
   const handleDelete = () => {
     Alert.alert(
       'Eliminar hábito',
-      '¿Estás seguro? Esta acción no se puede deshacer.',
+      'Esta acción es permanente y no se puede deshacer.',
       [
         { text: 'Cancelar', style: 'cancel' },
         {
@@ -82,10 +89,16 @@ export default function ChecklistDetailScreen() {
       ))}
 
       <TouchableOpacity
+        style={[styles.archiveButton, { backgroundColor: theme.primary }]}
+        onPress={handleArchive}
+      >
+        <Text style={styles.archiveText}>📦 Archivar hábito</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
         style={[styles.deleteButton, { borderColor: theme.error }]}
         onPress={handleDelete}
       >
-        <Text style={[styles.deleteText, { color: theme.error }]}>🗑 Eliminar hábito</Text>
+        <Text style={[styles.deleteText, { color: theme.error }]}>🗑 Eliminar permanentemente</Text>
       </TouchableOpacity>
     </View>
   );
@@ -107,12 +120,19 @@ const styles = StyleSheet.create({
   checkbox: { fontSize: 20 },
   itemText: { fontSize: typography.fontSizes.md, flex: 1 },
   completed: { textDecorationLine: 'line-through' },
+  archiveButton: {
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    alignItems: 'center',
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
+  },
+  archiveText: { color: 'white', fontSize: typography.fontSizes.md, fontWeight: '500' },
   deleteButton: {
     borderWidth: 1,
     borderRadius: borderRadius.md,
     padding: spacing.md,
     alignItems: 'center',
-    marginTop: spacing.lg,
   },
   deleteText: { fontSize: typography.fontSizes.md, fontWeight: '500' },
 });

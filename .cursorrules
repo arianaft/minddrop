@@ -1,0 +1,113 @@
+# MindDrop — Cursor Rules
+
+## Contexto del proyecto
+
+MindDrop es una app móvil de bienestar mental y productividad. Permite gestionar tres tipos de contenido: reflexiones personales (notas de texto), hábitos (checklists con seguimiento de progreso) e ideas rápidas (con etiquetas y color personalizado).
+
+## Stack tecnológico
+
+- **React Native 0.81** con **Expo SDK 54**
+- **TypeScript** en modo estricto (`strict: true`)
+- **Expo Router** para navegación basada en sistema de archivos
+- **React Native Paper** como librería de componentes UI
+- **Zustand** para estado global con middleware `persist`
+- **AsyncStorage** para persistencia local
+- **@shopify/flash-list** para listas de alto rendimiento
+- **Zod** para validación de formularios
+- **expo-haptics** para feedback táctil
+
+## Estructura de carpetas
+
+```
+minddrop/
+├── app/                   # Rutas de Expo Router
+│   ├── _layout.tsx        # Root layout (PaperProvider, SafeAreaProvider, Stack)
+│   ├── nueva-nota.tsx     # Modal de creación (todos los tipos)
+│   └── (tabs)/            # Navegación por pestañas
+│       ├── _layout.tsx    # Configuración de pestañas
+│       ├── notas.tsx      # Lista de reflexiones
+│       ├── notas/[id].tsx # Detalle de reflexión
+│       ├── checklists.tsx
+│       ├── checklists/[id].tsx
+│       ├── ideas.tsx
+│       └── ideas/[id].tsx
+├── components/
+│   ├── FlashListWrapper.tsx
+│   └── items/             # NoteCard, ChecklistCard, IdeaCard
+├── constants/
+│   └── theme.ts           # Tokens de diseño (colores, tipografía, espaciados)
+├── store/
+│   └── notesStore.ts      # Store Zustand con persistencia
+└── types/
+    └── index.ts           # Interfaces TypeScript y type guards
+```
+
+## Convenciones de nomenclatura
+
+- **Componentes**: PascalCase (`NoteCard.tsx`, `FlashListWrapper.tsx`)
+- **Archivos no-componente**: camelCase (`notesStore.ts`, `theme.ts`)
+- **Carpetas**: kebab-case (`(tabs)/`, `items/`)
+- **Interfaces**: PascalCase sin prefijo I (`Note`, `ChecklistItem`)
+- **Hooks personalizados**: camelCase con prefijo `use` (`useTheme`, `useNotesStore`)
+
+## Reglas de código
+
+### TypeScript
+- Siempre TypeScript estricto, nunca `any` explícito salvo en rutas de Expo Router donde es necesario
+- Usar los type guards de `types/index.ts`: `isNote()`, `isChecklist()`, `isIdea()`
+- El tipo unión `AnyNote` para funciones que acepten cualquier tipo de nota
+
+### Estilos y tema
+- NUNCA usar colores hardcodeados. Siempre usar `useTheme()` de `constants/theme.ts`
+- NUNCA usar valores de spacing o tipografía directos. Usar `spacing.md`, `typography.fontSizes.lg`, etc.
+- El hook `useTheme()` devuelve los colores correctos para modo claro/oscuro automáticamente
+
+### Navegación
+- SIEMPRE usar Expo Router: `useRouter()`, `useLocalSearchParams()`, `router.push()`, `router.back()`
+- NUNCA importar de `react-navigation` directamente
+- Rutas como strings: `/notas/${id}`, `/nueva-nota`
+
+### Componentes
+- SIEMPRE componentes funcionales con hooks, nunca componentes de clase
+- Estilos con `StyleSheet.create()`, nunca estilos inline salvo valores dinámicos del tema
+- Usar `FlashListWrapper` (que usa `@shopify/flash-list`) para todas las listas, nunca `FlatList` directamente
+
+### Estado
+- Usar `useNotesStore` con selectors específicos: `useNotesStore((state) => state.notes)`
+- No suscribirse al store completo para evitar re-renders innecesarios
+- La persistencia es automática via middleware, no hace falta llamar a nada extra
+
+### Formularios
+- Validación con Zod. Los schemas están en `app/nueva-nota.tsx`
+- Mostrar errores de Zod debajo de cada campo, no con `Alert`
+- `KeyboardAvoidingView` con `behavior='padding'` en iOS y `behavior='height'` en Android
+
+### Feedback táctil
+- Eliminar nota/checklist/idea: `Haptics.impactAsync(ImpactFeedbackStyle.Light)`
+- Completar todos los items de un checklist: `Haptics.notificationAsync(NotificationFeedbackType.Success)`
+
+## Restricciones importantes
+
+- El proyecto usa **Expo Go** (no Development Build), por tanto no añadir módulos nativos que requieran compilación nativa
+- No usar `React Navigation` directamente; Expo Router lo abstrae
+- No usar `StyleSheet` con valores de color directos; siempre pasar por el tema
+- No crear componentes de clase
+- No usar `var`, siempre `const` o `let`
+
+## Tipos de datos
+
+```typescript
+interface BaseNote { id: string; title: string; createdAt: Date; updatedAt: Date; }
+interface Note extends BaseNote { content: string; }
+interface ChecklistNote extends BaseNote { items: ChecklistItem[]; }
+interface IdeaNote extends BaseNote { tags: string[]; color: string; }
+interface ChecklistItem { id: string; text: string; isCompleted: boolean; }
+type AnyNote = Note | ChecklistNote | IdeaNote;
+```
+
+## Paleta de colores principal (modo claro)
+
+- Primary: `#7C9E87` (verde salvia)
+- Background: `#F5F0E8` (beige)
+- Accent: `#D4A96A` (dorado)
+- Text: `#2D3B2E`

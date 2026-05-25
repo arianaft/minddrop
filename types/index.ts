@@ -3,6 +3,7 @@ export interface BaseNote {
   title: string;
   createdAt: Date;
   updatedAt: Date;
+  archived?: boolean;
 }
 
 export interface Note extends BaseNote {

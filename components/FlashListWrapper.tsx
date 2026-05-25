@@ -1,6 +1,10 @@
 import React from 'react';
-import { FlatList, FlatListProps } from 'react-native';
+import { FlashList, FlashListProps } from '@shopify/flash-list';
 
-export default function FlashListWrapper<T>(props: FlatListProps<T>) {
-  return <FlatList {...props} />;
+interface Props<T> extends Omit<FlashListProps<T>, 'estimatedItemSize'> {
+  estimatedItemSize?: number;
+}
+
+export default function FlashListWrapper<T>({ estimatedItemSize = 100, ...props }: Props<T>) {
+  return <FlashList estimatedItemSize={estimatedItemSize} {...props} />;
 }

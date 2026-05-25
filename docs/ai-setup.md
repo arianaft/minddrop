@@ -8,7 +8,7 @@ Durante el desarrollo de MindDrop he utilizado Claude como asistente principal d
 
 Claude se ha utilizado con contexto técnico explícito en cada consulta, proporcionando siempre:
 
-- El stack del proyecto: React Native, Expo SDK 54, TypeScript, Expo Router, Gluestack UI, Zustand
+- El stack del proyecto: React Native, Expo SDK 54, TypeScript, Expo Router, React Native Paper, Zustand
 - La estructura de carpetas del proyecto
 - Las convenciones de nomenclatura: componentes en PascalCase, archivos en camelCase, carpetas en kebab-case
 - La temática de MindDrop: app de bienestar mental con paleta verde salvia y beige

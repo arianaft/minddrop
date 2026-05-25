@@ -9,13 +9,20 @@ export default function IdeaDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const ideas = useNotesStore((state) => state.ideas);
+  const archiveIdea = useNotesStore((state) => state.archiveIdea);
   const deleteIdea = useNotesStore((state) => state.deleteIdea);
   const idea = ideas.find((i) => i.id === id);
+
+  const handleArchive = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    archiveIdea(id!);
+    router.back();
+  };
 
   const handleDelete = () => {
     Alert.alert(
       'Eliminar idea',
-      '¿Estás seguro? Esta acción no se puede deshacer.',
+      'Esta acción es permanente y no se puede deshacer.',
       [
         { text: 'Cancelar', style: 'cancel' },
         {
@@ -56,12 +63,20 @@ export default function IdeaDetailScreen() {
         ))}
       </View>
 
-      <TouchableOpacity
-        style={[styles.deleteButton, { borderColor: theme.error }]}
-        onPress={handleDelete}
-      >
-        <Text style={[styles.deleteText, { color: theme.error }]}>🗑 Eliminar idea</Text>
-      </TouchableOpacity>
+      <View style={styles.actions}>
+        <TouchableOpacity
+          style={[styles.archiveButton, { backgroundColor: theme.primary }]}
+          onPress={handleArchive}
+        >
+          <Text style={styles.archiveText}>📦 Archivar idea</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.deleteButton, { borderColor: theme.error }]}
+          onPress={handleDelete}
+        >
+          <Text style={[styles.deleteText, { color: theme.error }]}>🗑 Eliminar permanentemente</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -71,7 +86,7 @@ const styles = StyleSheet.create({
   header: { padding: spacing.xl },
   title: { fontSize: typography.fontSizes.xl, fontWeight: '700', marginBottom: spacing.xs },
   date: { fontSize: typography.fontSizes.sm },
-  tagsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, padding: spacing.md },
+  tagsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, padding: spacing.md, flex: 1 },
   tag: {
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
@@ -79,13 +94,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   tagText: { fontSize: typography.fontSizes.sm },
+  actions: { padding: spacing.md, gap: spacing.sm },
+  archiveButton: {
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    alignItems: 'center',
+  },
+  archiveText: { color: 'white', fontSize: typography.fontSizes.md, fontWeight: '500' },
   deleteButton: {
     borderWidth: 1,
     borderRadius: borderRadius.md,
     padding: spacing.md,
     alignItems: 'center',
-    margin: spacing.md,
-    marginTop: 'auto',
   },
   deleteText: { fontSize: typography.fontSizes.md, fontWeight: '500' },
 });

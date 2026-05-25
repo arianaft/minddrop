@@ -47,6 +47,15 @@ export default function TabsLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="archivadas"
+        options={{
+          title: 'Archivadas',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="archive-outline" color={color} size={size} />
+          ),
+        }}
+      />
       <Tabs.Screen name="notas/[id]" options={{ href: null, title: 'Detalle' }} />
       <Tabs.Screen name="checklists/[id]" options={{ href: null, title: 'Detalle' }} />
       <Tabs.Screen name="ideas/[id]" options={{ href: null, title: 'Detalle' }} />

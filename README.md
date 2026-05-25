@@ -11,7 +11,7 @@ MindDrop ayuda a las personas a organizar su mente en un solo lugar. Combina ref
 - **React Native** con Expo SDK 54
 - **TypeScript** para tipado estático
 - **Expo Router** para navegación basada en archivos
-- **Gluestack UI** como librería de componentes
+- **React Native Paper** como librería de componentes
 - **Zustand** para estado global
 - **AsyncStorage** para persistencia local
 - **FlashList** para listas de alto rendimiento
